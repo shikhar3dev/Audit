@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const auditRoutes = require('./routes/audit');
 
 const app = express();
@@ -20,7 +21,11 @@ app.use(cors({
     'http://127.0.0.1:3001',
     'http://127.0.0.1:3002',
     'http://127.0.0.1:3003',
-    'http://127.0.0.1:3004'
+    'http://127.0.0.1:3004',
+    // Production domains - update these with your actual domains
+    'https://shikhar3dev.github.io',
+    'https://your-app.netlify.app',
+    'https://your-app.vercel.app'
   ],
   credentials: true
 }));
@@ -28,8 +33,17 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/audit', auditRoutes);
+// Serve static files from frontend build
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Handle React Router (SPA fallback)
+app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Health check
 app.get('/health', (req, res) => {
