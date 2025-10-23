@@ -1,0 +1,5 @@
+# Redirect API calls to backend
+/api/*  https://your-backend-domain.railway.app/api/:splat  200
+
+# SPA fallback for client-side routing
+/*    /index.html   200

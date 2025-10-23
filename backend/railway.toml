@@ -1,0 +1,17 @@
+[build]
+  builder = "NIXPACKS"
+
+[deploy]
+  restartPolicyType = "ON_FAILURE"
+  restartPolicyMaxRetries = 3
+
+[services.api]
+  environment = "node"
+  startCommand = "npm start"
+
+[services.api.environmentVariables]
+  NODE_ENV = "production"
+  PORT = "3004"
+
+[experimental]
+  configVersion = 1

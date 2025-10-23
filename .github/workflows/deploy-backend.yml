@@ -1,0 +1,42 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Build Docker image
+        run: docker build -t seo-audit-backend ./backend
+
+      - name: Deploy to Railway
+        uses: railwayapp/railway-action@v1
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          working_directory: ./backend
+
+      # Alternative: Deploy to Render
+      # - name: Deploy to Render
+      #   uses: render-oss/render-deploy-action@v1
+      #   with:
+      #     render_token: ${{ secrets.RENDER_TOKEN }}
+      #     service_id: ${{ secrets.RENDER_SERVICE_ID }}
