@@ -1,6 +1,21 @@
 #!/bin/bash
 
-# Build frontend
+# Check if we're in Railway runtime (npm might not be available)
+if ! command -v npm &> /dev/null; then
+    echo "npm not available, assuming Docker build completed"
+    cd backend
+    exec npm start
+fi
+
+# Check if frontend build already exists
+if [ -d "frontend/build" ]; then
+    echo "Frontend already built, copying to backend..."
+    cp -r frontend/build backend/public/
+    cd backend
+    exec npm start
+fi
+
+# Build frontend if needed
 echo "Building frontend..."
 cd frontend
 npm install
@@ -14,4 +29,4 @@ cp -r build ../backend/public/
 echo "Starting backend..."
 cd ../backend
 npm install
-npm start
+exec npm start
